@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy Website</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+    }
+    iframe {
+      width: 100%;
+      height: 80vh;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Proxy Website</h1>
+  <p>Enter a URL to fetch and display its content:</p>
+  <input type="url" id="urlInput" placeholder="Enter a URL (e.g., https://example.com)" required>
+  <button onclick="fetchContent()">Fetch Content</button>
+  <div id="output"></div>
+
+  <script>
+    async function fetchContent() {
+      const url = document.getElementById('urlInput').value;
+      const outputDiv = document.getElementById('output');
+      outputDiv.innerHTML = '';
+
+      if (!url) {
+        outputDiv.innerHTML = '<p style="color: red;">Please enter a valid URL.</p>';
+        return;
+      }
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+          const text = await response.text();
+          outputDiv.innerHTML = `<iframe srcdoc="${encodeURIComponent(text)}"></iframe>`;
+        } else {
+          const data = await response.json();
+          outputDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+      } catch (error) {
+        outputDiv.innerHTML = `<p style="color: red;">Error fetching content: ${error.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
